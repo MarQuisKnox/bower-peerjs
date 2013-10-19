@@ -12,7 +12,7 @@ bower install peerjs
 
 ## Documentation
 
-Documentation is available on the [here](http://peerjs.com/docs).
+Documentation is available [here](http://peerjs.com/docs).
 
 ## License
 
