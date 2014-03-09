@@ -6,7 +6,7 @@
     "Michelle Bu <michelle@michellebu.com>"
   ],
   "description": "Simple peer-to-peer data and media using WebRTC.",
-  "main": "peer.min.js",
+  "main": "peer.js",
   "keywords": [
     "WebRTC",
     "peer",
