@@ -1,4 +1,4 @@
-/*! peerjs build:0.3.11, development. Copyright(c) 2013 Michelle Bu <michelle@michellebu.com> */(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*! peerjs build:0.3.12, development. Copyright(c) 2013 Michelle Bu <michelle@michellebu.com> */(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports.RTCSessionDescription = window.RTCSessionDescription ||
 	window.mozRTCSessionDescription;
 module.exports.RTCPeerConnection = window.RTCPeerConnection ||
@@ -788,7 +788,7 @@ function Peer(id, options) {
     this._retrieveId();
   }
   //
-};
+}
 
 util.inherits(Peer, EventEmitter);
 
@@ -806,7 +806,7 @@ Peer.prototype._initializeServerConnection = function() {
   this.socket.on('disconnected', function() {
     // If we haven't explicitly disconnected, emit error and disconnect.
     if (!self.disconnected) {
-      self.emitError('network', 'Lost connection to server.')
+      self.emitError('network', 'Lost connection to server.');
       self.disconnect();
     }
   });
@@ -823,8 +823,8 @@ Peer.prototype._retrieveId = function(cb) {
   var self = this;
   var http = new XMLHttpRequest();
   var protocol = this.options.secure ? 'https://' : 'http://';
-  var url = protocol + this.options.host + ':' + this.options.port
-    + this.options.path + this.options.key + '/id';
+  var url = protocol + this.options.host + ':' + this.options.port +
+    this.options.path + this.options.key + '/id';
   var queryString = '?ts=' + new Date().getTime() + '' + Math.random();
   url += queryString;
 
@@ -834,12 +834,12 @@ Peer.prototype._retrieveId = function(cb) {
     util.error('Error retrieving ID', e);
     var pathError = '';
     if (self.options.path === '/' && self.options.host !== util.CLOUD_HOST) {
-      pathError = ' If you passed in a `path` to your self-hosted PeerServer, '
-        + 'you\'ll also need to pass in that same path when creating a new'
-        + ' Peer.';
+      pathError = ' If you passed in a `path` to your self-hosted PeerServer, ' +
+        'you\'ll also need to pass in that same path when creating a new ' +
+        'Peer.';
     }
     self._abort('server-error', 'Could not get an ID from the server.' + pathError);
-  }
+  };
   http.onreadystatechange = function() {
     if (http.readyState !== 4) {
       return;
@@ -857,13 +857,14 @@ Peer.prototype._retrieveId = function(cb) {
 Peer.prototype._initialize = function(id) {
   this.id = id;
   this.socket.start(this.id, this.options.token);
-}
+};
 
 /** Handles messages from the server. */
 Peer.prototype._handleMessage = function(message) {
   var type = message.type;
   var payload = message.payload;
   var peer = message.src;
+  var connection;
 
   switch (type) {
     case 'OPEN': // The connection to the server is open.
@@ -891,7 +892,7 @@ Peer.prototype._handleMessage = function(message) {
       break;
     case 'OFFER': // we should consider switching this to CALL/CONNECT, but this is the least breaking option.
       var connectionId = payload.connectionId;
-      var connection = this.getConnection(peer, connectionId);
+      connection = this.getConnection(peer, connectionId);
 
       if (connection) {
         util.warn('Offer received for existing Connection ID:', connectionId);
@@ -899,7 +900,7 @@ Peer.prototype._handleMessage = function(message) {
       } else {
         // Create a new connection.
         if (payload.type === 'media') {
-          var connection = new MediaConnection(peer, this, {
+          connection = new MediaConnection(peer, this, {
             connectionId: connectionId,
             _payload: payload,
             metadata: payload.metadata
@@ -935,7 +936,7 @@ Peer.prototype._handleMessage = function(message) {
       }
 
       var id = payload.connectionId;
-      var connection = this.getConnection(peer, id);
+      connection = this.getConnection(peer, id);
 
       if (connection && connection.pc) {
         // Pass it on.
@@ -948,7 +949,7 @@ Peer.prototype._handleMessage = function(message) {
       }
       break;
   }
-}
+};
 
 /** Stores messages without a set up connection, to be claimed later. */
 Peer.prototype._storeMessage = function(connectionId, message) {
@@ -956,7 +957,7 @@ Peer.prototype._storeMessage = function(connectionId, message) {
     this._lostMessages[connectionId] = [];
   }
   this._lostMessages[connectionId].push(message);
-}
+};
 
 /** Retrieve messages from lost message store */
 Peer.prototype._getMessages = function(connectionId) {
@@ -967,7 +968,7 @@ Peer.prototype._getMessages = function(connectionId) {
   } else {
     return [];
   }
-}
+};
 
 /**
  * Returns a DataConnection to the specified peer. See documentation for a
@@ -975,17 +976,17 @@ Peer.prototype._getMessages = function(connectionId) {
  */
 Peer.prototype.connect = function(peer, options) {
   if (this.disconnected) {
-    util.warn('You cannot connect to a new Peer because you called '
-        + '.disconnect() on this Peer and ended your connection with the'
-        + ' server. You can create a new Peer to reconnect, or call reconnect'
-        + ' on this peer if you believe its ID to still be available.');
+    util.warn('You cannot connect to a new Peer because you called ' +
+      '.disconnect() on this Peer and ended your connection with the ' +
+      'server. You can create a new Peer to reconnect, or call reconnect ' +
+      'on this peer if you believe its ID to still be available.');
     this.emitError('disconnected', 'Cannot connect to new Peer after disconnecting from server.');
     return;
   }
   var connection = new DataConnection(peer, this, options);
   this._addConnection(peer, connection);
   return connection;
-}
+};
 
 /**
  * Returns a MediaConnection to the specified peer. See documentation for a
@@ -993,9 +994,9 @@ Peer.prototype.connect = function(peer, options) {
  */
 Peer.prototype.call = function(peer, stream, options) {
   if (this.disconnected) {
-    util.warn('You cannot connect to a new Peer because you called '
-        + '.disconnect() on this Peer and ended your connection with the'
-        + ' server. You can create a new Peer to reconnect.');
+    util.warn('You cannot connect to a new Peer because you called ' +
+      '.disconnect() on this Peer and ended your connection with the ' +
+      'server. You can create a new Peer to reconnect.');
     this.emitError('disconnected', 'Cannot connect to new Peer after disconnecting from server.');
     return;
   }
@@ -1008,7 +1009,7 @@ Peer.prototype.call = function(peer, stream, options) {
   var call = new MediaConnection(peer, this, options);
   this._addConnection(peer, call);
   return call;
-}
+};
 
 /** Add a data/media connection to this peer. */
 Peer.prototype._addConnection = function(peer, connection) {
@@ -1016,7 +1017,7 @@ Peer.prototype._addConnection = function(peer, connection) {
     this.connections[peer] = [];
   }
   this.connections[peer].push(connection);
-}
+};
 
 /** Retrieve a data/media connection for this peer. */
 Peer.prototype.getConnection = function(peer, id) {
@@ -1030,14 +1031,14 @@ Peer.prototype.getConnection = function(peer, id) {
     }
   }
   return null;
-}
+};
 
 Peer.prototype._delayedAbort = function(type, message) {
   var self = this;
   util.setZeroTimeout(function(){
     self._abort(type, message);
   });
-}
+};
 
 /**
  * Destroys the Peer and emits an error message.
@@ -1076,7 +1077,7 @@ Peer.prototype.destroy = function() {
     this.disconnect();
     this.destroyed = true;
   }
-}
+};
 
 
 /** Disconnects every connection on this peer. */
@@ -1088,7 +1089,7 @@ Peer.prototype._cleanup = function() {
     }
   }
   this.emit('close');
-}
+};
 
 /** Closes all connections to this peer. */
 Peer.prototype._cleanupPeer = function(peer) {
@@ -1096,7 +1097,7 @@ Peer.prototype._cleanupPeer = function(peer) {
   for (var j = 0, jj = connections.length; j < jj; j += 1) {
     connections[j].close();
   }
-}
+};
 
 /**
  * Disconnects the Peer's connection to the PeerServer. Does not close any
@@ -1118,7 +1119,7 @@ Peer.prototype.disconnect = function() {
       self.id = null;
     }
   });
-}
+};
 
 /** Attempts to reconnect with the same ID. */
 Peer.prototype.reconnect = function() {
@@ -1148,8 +1149,8 @@ Peer.prototype.listAllPeers = function(cb) {
   var self = this;
   var http = new XMLHttpRequest();
   var protocol = this.options.secure ? 'https://' : 'http://';
-  var url = protocol + this.options.host + ':' + this.options.port
-    + this.options.path + this.options.key + '/peers';
+  var url = protocol + this.options.host + ':' + this.options.port +
+    this.options.path + this.options.key + '/peers';
   var queryString = '?ts=' + new Date().getTime() + '' + Math.random();
   url += queryString;
 
@@ -1158,7 +1159,7 @@ Peer.prototype.listAllPeers = function(cb) {
   http.onerror = function(e) {
     self._abort('server-error', 'Could not get peers from the server.');
     cb([]);
-  }
+  };
   http.onreadystatechange = function() {
     if (http.readyState !== 4) {
       return;
@@ -1166,14 +1167,14 @@ Peer.prototype.listAllPeers = function(cb) {
     if (http.status === 401) {
       var helpfulError = '';
       if (self.options.host !== util.CLOUD_HOST) {
-        helpfulError = 'It looks like you\'re using the cloud server. You can email '
-          + 'team@peerjs.com to enable peer listing for your API key.';
+        helpfulError = 'It looks like you\'re using the cloud server. You can email ' +
+          'team@peerjs.com to enable peer listing for your API key.';
       } else {
-        helpfulError = 'You need to enable `allow_discovery` on your self-hosted'
-          + ' PeerServer to use this feature.';
+        helpfulError = 'You need to enable `allow_discovery` on your self-hosted ' +
+          'PeerServer to use this feature.';
       }
-      throw new Error('It doesn\'t look like you have permission to list peers IDs. ' + helpfulError);
       cb([]);
+      throw new Error('It doesn\'t look like you have permission to list peers IDs. ' + helpfulError);
     } else if (http.status !== 200) {
       cb([]);
     } else {
@@ -1181,7 +1182,7 @@ Peer.prototype.listAllPeers = function(cb) {
     }
   };
   http.send(null);
-}
+};
 
 module.exports = Peer;
 
@@ -1464,7 +1465,7 @@ var util = {
         err = true;
       }
     }
-    err ? console.error.apply(console, copy) : console.log.apply(console, copy);  
+    err ? console.error.apply(console, copy) : console.log.apply(console, copy);
   },
   //
 
@@ -1552,7 +1553,7 @@ var util = {
           util.supports.onnegotiationneeded = true;
         }
       };
-      var negotiationDC = negotiationPC.createDataChannel('_PEERJSNEGOTIATIONTEST');
+      negotiationPC.createDataChannel('_PEERJSNEGOTIATIONTEST');
 
       setTimeout(function() {
         negotiationPC.close();
